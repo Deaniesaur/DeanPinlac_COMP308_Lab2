@@ -1,5 +1,6 @@
 import mongoose , { PassportLocalSchema }from 'mongoose';
 import passportLocalMongoose from 'passport-local-mongoose';
+import Course from './course';
 
 const Schema = mongoose.Schema;
 
@@ -43,3 +44,9 @@ declare global {
 }
 
 export default Model;
+
+// export type StudentDocumentWithAllCourses = StudentDocument & { allCourses: typeof(Course[]) }
+
+export type LoggedUser = {
+  userId: string
+}

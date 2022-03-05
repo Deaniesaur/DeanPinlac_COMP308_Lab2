@@ -8,6 +8,8 @@ const course_1 = __importDefault(require("../models/course"));
 const AllCourses = (req, res, next) => {
     course_1.default
         .find()
+        .sort({ code: 1, section: 1 })
+        .exec()
         .then((courses) => {
         res.status(200).json(courses);
     })
@@ -17,9 +19,10 @@ const AllCourses = (req, res, next) => {
 };
 exports.AllCourses = AllCourses;
 const GetCourseById = (req, res, next) => {
-    const courseCode = req.params.id;
+    const courseId = req.params.id;
     course_1.default
-        .findById(courseCode)
+        .findById(courseId)
+        .populate('students')
         .then((course) => {
         if (course === null)
             return res.status(400).json('Course not found');

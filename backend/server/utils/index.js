@@ -56,7 +56,7 @@ const AuthGuard = (req, res, next) => {
         const loggedStudent = decoded;
         console.log(studentId);
         console.log(loggedStudent);
-        if (studentId !== loggedStudent.studentId)
+        if (studentId !== undefined && studentId !== loggedStudent.userId)
             return res.status(401).json('Token Mismatch');
         next();
     });

@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import createError from 'http-errors';
 import jwt from 'jsonwebtoken';
 import { DefaultPort, Secret } from '../config/config';
+import { LoggedUser } from '../models/student';
 
 export const normalizePort = (val: string) => {
   const port = parseInt(val, 10);
@@ -59,10 +60,10 @@ export const AuthGuard = (req: Request, res: Response, next: NextFunction) => {
     }
 
     const studentId = req.params.id;
-    const loggedStudent = decoded as StudentDocument;
+    const loggedStudent = decoded as LoggedUser;
     console.log(studentId);
     console.log(loggedStudent);
-    if(studentId !== loggedStudent.studentId)
+    if(studentId !== undefined && studentId !== loggedStudent.userId)
       return res.status(401).json('Token Mismatch');
     
     next();

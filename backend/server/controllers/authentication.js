@@ -77,6 +77,7 @@ const Login = (req, res, next) => {
                 studentId: user.username
             }, Config.Secret, { expiresIn: '2h' });
             return res.status(200).json({
+                userId: user._id,
                 token: token
             });
         });

@@ -37,7 +37,7 @@ const student_2 = __importDefault(require("../models/student"));
 const app = express_1.default();
 app.use(express_1.default.json());
 app.use(cookie_parser_1.default());
-app.use(cors_1.default());
+app.use(cors_1.default({ origin: '*' }));
 exports.default = app;
 // DB Configuration
 mongoose_1.default.connect(Config.MongoURI);

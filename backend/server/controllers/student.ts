@@ -5,7 +5,7 @@ import Course from '../models/course';
 
 export const AllStudents = (req: Request, res: Response, next: NextFunction) => {
   Student
-    .find()
+    .find({}, { address: 0})
     .then((students) => {
       res.status(200).json(students);
     })
@@ -15,10 +15,10 @@ export const AllStudents = (req: Request, res: Response, next: NextFunction) => 
 };
 
 export const GetStudentById = (req: Request, res: Response, next: NextFunction) => {
-  const studentId = req.params.id;
+  const id = req.params.id;
 
   Student
-    .findOne({ studentId: studentId })
+    .findById(id)
     .then((student) => {
       if (student === null)
         return res.status(400).json('Student not found');
@@ -31,16 +31,59 @@ export const GetStudentById = (req: Request, res: Response, next: NextFunction) 
 };
 
 export const GetCoursesByStudentId = (req: Request, res: Response, next: NextFunction) => {
-  const studentId = req.params.id;
+  const userId = req.params.id;
+  let allCourses: any;
 
-  Student
-    .find({ studentId: studentId })
-    .populate('courses')
+  Course.find()
+    .sort({code: 1, section: 1})
+    .exec()
+    .then((courses) => 
+    {
+      allCourses = courses;
+
+      return Student
+        .findById(userId)
+        .populate('courses');
+    })
     .then((student) => {
+      console.log(student);
+
       if (student === null)
         return res.status(400).json('Student not found');
+      
+      const response = {
+        ...student.toObject(),
+        allCourses
+      };
 
-      res.status(200).json(student);
+      res.status(200).json(response);
+    })
+    .catch((err) => {
+      res.status(500).json(err);
+    });
+};
+
+export const ChangeSectionByStudentId = (req: Request, res: Response, next: NextFunction) => {
+  const userId = req.params.id;
+  const currentSection = req.body.current;
+  const newSection = req.body.new;
+  
+  console.log('change', currentSection, newSection);
+  Student
+    .findByIdAndUpdate( userId,
+      { $pull: { courses: currentSection} },
+      { returnDocument: 'after' })
+    .then((student) => {
+      console.log(student);
+
+      return Student.findByIdAndUpdate( userId,
+        { $push: { courses: newSection} },
+        { returnDocument: 'after' });
+    })
+    .then((student) => {
+      console.log(student);
+
+      return res.status(200).json(student);
     })
     .catch((err) => {
       res.status(500).json(err);
@@ -72,12 +115,12 @@ export const UpdateStudentById = (req: Request, res: Response, next: NextFunctio
 };
 
 export const AddCourseByCode = (req: Request, res: Response, next: NextFunction) => {
-  const studentId = req.params.id;
+  const userId = req.params.id;
   const courseId = new ObjectId(req.body.courseId);
 
   console.log(courseId);
   Student
-    .findOneAndUpdate({ studentId: studentId},
+    .findByIdAndUpdate( userId,
       { $addToSet: { courses: courseId} },
       { returnDocument: 'after' }
     )
@@ -96,12 +139,12 @@ export const AddCourseByCode = (req: Request, res: Response, next: NextFunction)
 };
 
 export const DropCourseByCode = (req: Request, res: Response, next: NextFunction) => {
-  const studentId = req.params.id;
+  const userId = req.params.id;
   const courseId = new ObjectId(req.body.courseId);
 
   console.log(courseId);
   Student
-    .findOneAndUpdate({ studentId: studentId},
+    .findByIdAndUpdate( userId,
       { $pull: { courses: courseId} },
       { returnDocument: 'after' }
     )

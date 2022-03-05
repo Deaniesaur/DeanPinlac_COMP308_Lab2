@@ -1,4 +1,5 @@
 import express from 'express';
+import { AuthGuard } from '../utils';
 const router = express.Router();
 
 export default router;
@@ -12,7 +13,7 @@ import {
 } from '../controllers/course';
 
 router.get('/', AllCourses);
-router.post('/', AddCourse);
+router.post('/', AuthGuard, AddCourse);
 router.get('/:id', GetCourseById);
 router.put('/:id', UpdateCourseById);
 router.delete('/:id', DeleteCourseById);

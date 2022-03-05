@@ -65,6 +65,7 @@ export const Login = (req: Request, res: Response, next: NextFunction) => {
       }, Config.Secret, {expiresIn: '2h'});
 
       return res.status(200).json({
+        userId: user._id,
         token: token
       });
     });
